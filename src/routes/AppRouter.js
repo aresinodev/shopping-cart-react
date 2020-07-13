@@ -1,31 +1,46 @@
-import React from 'react'
+import React, { useReducer, useEffect } from "react";
 import {
-    BrowserRouter as Router,
-    Switch,
-    Route, Redirect,
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
 } from "react-router-dom";
 
-import {Navbar} from "../components/Navbar";
-import {ProductsScreen} from "../components/ProductsScreen";
-import {ProductScreen} from "../components/ProductScreen";
+import { Navbar } from "../components/Navbar";
+import { ProductsScreen } from "../components/ProductsScreen";
+import { ProductScreen } from "../components/ProductScreen";
 
 import "../styles/styles.scss";
-import {CartScreen} from "../components/CartScreen";
+import { CartScreen } from "../components/CartScreen";
+import { cartReducer } from "../cart/cartReducer";
+import { CartContext } from "../cart/CartContext";
+
+const init = () => {
+  return JSON.parse(localStorage.getItem("cart") || "[]");
+};
 
 export const AppRouter = () => {
-    return (
-        <Router>
-            <div className="app__content">
-                <Navbar />
+  const [cart, dispatch] = useReducer(cartReducer, [], init);
 
-                <Switch>
-                    <Route exact path="/" component={ProductsScreen} />
-                    <Route exact path="/product/:id" component={ProductScreen} />
-                    <Route exact path="/cart" component={CartScreen} />
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
-                    <Redirect to="/" />
-                </Switch>
-            </div>
-        </Router>
-    )
-}
+  return (
+    <CartContext.Provider value={{ cart, dispatch }}>
+      <Router>
+        <div className="app__content">
+          <Navbar />
+
+          <Switch>
+            <Route exact path="/" component={ProductsScreen} />
+            <Route exact path="/product/:id" component={ProductScreen} />
+            <Route exact path="/cart" component={CartScreen} />
+
+            <Redirect to="/" />
+          </Switch>
+        </div>
+      </Router>
+    </CartContext.Provider>
+  );
+};
