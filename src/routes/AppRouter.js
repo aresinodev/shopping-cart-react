@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,35 +12,27 @@ import { ProductScreen } from "../components/ProductScreen";
 
 import "../styles/styles.scss";
 import { CartScreen } from "../components/CartScreen";
-import { cartReducer } from "../cart/cartReducer";
-import { CartContext } from "../cart/CartContext";
-
-const init = () => {
-  return JSON.parse(localStorage.getItem("cart") || "[]");
-};
+import { CartContextProvider } from "../context/CartContext";
+import { ProductsContextProvider } from "../context/ProductsContext";
 
 export const AppRouter = () => {
-  const [cart, dispatch] = useReducer(cartReducer, [], init);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
-
   return (
-    <CartContext.Provider value={{ cart, dispatch }}>
-      <Router>
-        <div className="app__content">
-          <Navbar />
+    <ProductsContextProvider>
+      <CartContextProvider>
+        <Router>
+          <div className="app__content">
+            <Navbar />
 
-          <Switch>
-            <Route exact path="/" component={ProductsScreen} />
-            <Route exact path="/product/:id" component={ProductScreen} />
-            <Route exact path="/cart" component={CartScreen} />
+            <Switch>
+              <Route exact path="/" component={ProductsScreen} />
+              <Route exact path="/product/:id" component={ProductScreen} />
+              <Route exact path="/cart" component={CartScreen} />
 
-            <Redirect to="/" />
-          </Switch>
-        </div>
-      </Router>
-    </CartContext.Provider>
+              <Redirect to="/" />
+            </Switch>
+          </div>
+        </Router>
+      </CartContextProvider>
+    </ProductsContextProvider>
   );
 };
